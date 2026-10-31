@@ -370,13 +370,22 @@
       "hero": true,
       "caption": "A vigilant jungle babbler observing quietly from leafy cover in warm natural daylight.",
       "order": 21
-    },"IMG_20260928_174431.jpg.jpeg": {
-  "id": "img-20260928-174431",
-  "title": "A Beautiful Evening in Delhi",
-  "category": "sky",
-  "categories": ["sky"],
-  "date": "September 2026",
-  "order": 22
-}
+    },
+    "IMG_20260928_174431.jpg.jpeg": {
+      "id": "img-20260928-174431",
+      "title": "A Beautiful Evening in Delhi",
+      "category": "sky",
+      "categories": [
+        "sky"
+      ],
+      "location": "Delhi NCR · Silvassa, India",
+      "date": "September 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": false,
+      "hero": true,
+      "caption": "Curated in the Sky & Night photography archive.",
+      "order": 22
+    }
   }
 }

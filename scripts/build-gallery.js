@@ -53,17 +53,16 @@ function slugify(text) {
 
 function titleFromFilename(filename) {
   const nameWithoutExt = stripImageExtensions(filename);
-  // If filename looks like IMG_2026... format, return date-aware title
-  const imgMatch = nameWithoutExt.match(/^IMG_(\d{4})(\d{2})(\d{2})_\d{6}$/i);
-  if (imgMatch) {
-    const [_, year, month, day] = imgMatch;
-    return `Frame ${year}.${month}.${day}`;
+  // If filename looks like generic camera pattern, timestamp, or raw numbers, return clean editorial fallback
+  if (/^(IMG|DSC|PXL|SAM|PIC|IMAGE|PHOTO)?_?\d+([_-]\d+)*$/i.test(nameWithoutExt)) {
+    return 'Untitled Photograph';
   }
   // Otherwise convert "tiger-in-mist" or "tiger_in_mist" to "Tiger In Mist"
-  return nameWithoutExt
+  const cleaned = nameWithoutExt
     .replace(/[-_]+/g, ' ')
     .trim()
     .replace(/\b\w/g, c => c.toUpperCase());
+  return cleaned || 'Untitled Photograph';
 }
 
 function dateFromFilename(filename) {
@@ -122,24 +121,40 @@ export function buildGallery() {
     photosByFilename.set(photo.filename, photo);
   }
 
+  // Category folders list for discovery and path resolution
+  const categoryFolders = ['wildlife', 'nature', 'street', 'travel', 'black-white', 'sky-night'];
+
   // 2. Register Baseline Configured Photos from gallery-config.json
   for (const [filename, meta] of Object.entries(customMetadata)) {
     const baseName = path.parse(filename).name;
     const photoId = meta.id || slugify(meta.title || baseName);
     const category = meta.category || 'street';
 
-    // Verify paths: prefer existing web/originals if present
-    const webPath = fs.existsSync(path.join(PHOTOS_DIR, 'web', `${baseName}.webp`))
-      ? `/assets/photos/web/${baseName}.webp`
-      : `/assets/photos/originals/${filename}`;
+    // Verify paths: prefer existing web/originals if present, or search in category folders
+    let webPath = meta.web;
+    if (!webPath) {
+      if (fs.existsSync(path.join(PHOTOS_DIR, 'web', `${baseName}.webp`))) {
+        webPath = `/assets/photos/web/${baseName}.webp`;
+      } else if (fs.existsSync(path.join(PHOTOS_DIR, 'originals', filename))) {
+        webPath = `/assets/photos/originals/${filename}`;
+      } else {
+        for (const catFolder of categoryFolders) {
+          if (fs.existsSync(path.join(PHOTOS_DIR, catFolder, filename))) {
+            webPath = `/assets/photos/${catFolder}/${filename}`;
+            break;
+          }
+        }
+      }
+    }
+    webPath = webPath || `/assets/photos/originals/${filename}`;
 
-    const thumbPath = fs.existsSync(path.join(PHOTOS_DIR, 'thumb', `${baseName}.webp`))
+    const thumbPath = meta.thumb || (fs.existsSync(path.join(PHOTOS_DIR, 'thumb', `${baseName}.webp`))
       ? `/assets/photos/thumb/${baseName}.webp`
-      : webPath;
+      : webPath);
 
-    const origPath = fs.existsSync(path.join(PHOTOS_DIR, 'originals', filename))
+    const origPath = meta.original || (fs.existsSync(path.join(PHOTOS_DIR, 'originals', filename))
       ? `/assets/photos/originals/${filename}`
-      : webPath;
+      : webPath);
 
     const isFeatured = meta.featured !== undefined ? meta.featured : featuredIds.has(photoId);
 
@@ -165,8 +180,6 @@ export function buildGallery() {
   }
 
   // 3. Scan the 6 Category Folders for Newly Uploaded Photos
-  const categoryFolders = ['wildlife', 'nature', 'street', 'travel', 'black-white', 'sky-night'];
-
   for (const folderName of categoryFolders) {
     const folderPath = path.join(PHOTOS_DIR, folderName);
     if (!fs.existsSync(folderPath)) continue;
@@ -199,7 +212,7 @@ export function buildGallery() {
         }
       }
 
-      const meta = customMetadata[file] || {};
+      const meta = customMetadata[file] || customMetadata[photoId] || customMetadata[cleanBaseName] || {};
       const title = meta.title || titleFromFilename(file);
       const category = meta.category || catInfo.id;
       const isFeatured = meta.featured !== undefined ? meta.featured : featuredIds.has(photoId);
