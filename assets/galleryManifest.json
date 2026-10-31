@@ -1,6 +1,6 @@
 {
   "config": {
-    "total": 21,
+    "total": 22,
     "featuredCount": 12,
     "featuredList": [
       "azure-perch",
@@ -9,7 +9,7 @@
       "connaught-pillars-1",
       "resting-plumage"
     ],
-    "generatedAt": "2026-10-31T21:56:01.854Z"
+    "generatedAt": "2026-10-31T22:30:09.454Z"
   },
   "photos": [
     {
@@ -459,6 +459,27 @@
       "hero": true,
       "caption": "A vigilant jungle babbler observing quietly from leafy cover in warm natural daylight.",
       "order": 21
+    },
+    {
+      "id": "img-20260928-174431",
+      "filename": "IMG_20260928_174431.jpg.jpeg",
+      "web": "/assets/photos/sky-night/IMG_20260928_174431.jpg.jpeg",
+      "thumb": "/assets/photos/sky-night/IMG_20260928_174431.jpg.jpeg",
+      "original": "/assets/photos/sky-night/IMG_20260928_174431.jpg.jpeg",
+      "title": "Frame 2026.09.28",
+      "category": "sky",
+      "categories": [
+        "sky"
+      ],
+      "location": "Delhi NCR · Silvassa, India",
+      "date": "September 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "storyId": null,
+      "featured": false,
+      "hero": true,
+      "caption": "Curated in the Sky & Night photography archive.",
+      "order": 1000
     }
   ]
 }

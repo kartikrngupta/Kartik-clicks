@@ -36,29 +36,51 @@ const CATEGORY_MAP = {
   'sky': { id: 'sky', name: 'Sky & Night' },
 };
 
+function stripImageExtensions(filename) {
+  // Normalize chained image extensions such as .jpg.jpeg, .jpeg.jpg, .png, etc.
+  return filename.replace(/(\.(jpg|jpeg|png|webp))+$/i, '');
+}
+
 function slugify(text) {
   return text
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-')
+    .replace(/[_ \t]+/g, '-')
     .replace(/[^\w-]+/g, '')
     .replace(/--+/g, '-');
 }
 
 function titleFromFilename(filename) {
-  const nameWithoutExt = path.parse(filename).name;
+  const nameWithoutExt = stripImageExtensions(filename);
   // If filename looks like IMG_2026... format, return date-aware title
-  if (/^IMG_\d{8}_\d{6}$/i.test(nameWithoutExt)) {
-    const parts = nameWithoutExt.split('_');
-    const dateStr = parts[1]; // YYYYMMDD
-    return `Frame ${dateStr.slice(0, 4)}.${dateStr.slice(4, 6)}.${dateStr.slice(6, 8)}`;
+  const imgMatch = nameWithoutExt.match(/^IMG_(\d{4})(\d{2})(\d{2})_\d{6}$/i);
+  if (imgMatch) {
+    const [_, year, month, day] = imgMatch;
+    return `Frame ${year}.${month}.${day}`;
   }
   // Otherwise convert "tiger-in-mist" or "tiger_in_mist" to "Tiger In Mist"
   return nameWithoutExt
     .replace(/[-_]+/g, ' ')
     .trim()
     .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function dateFromFilename(filename) {
+  const nameWithoutExt = stripImageExtensions(filename);
+  const imgMatch = nameWithoutExt.match(/^IMG_(\d{4})(\d{2})(\d{2})_\d{6}$/i);
+  if (imgMatch) {
+    const [_, year, month] = imgMatch;
+    const months = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const monthIdx = parseInt(month, 10) - 1;
+    if (monthIdx >= 0 && monthIdx < 12) {
+      return `${months[monthIdx]} ${year}`;
+    }
+  }
+  return null;
 }
 
 function formatDate(dateObj) {
@@ -157,8 +179,8 @@ export function buildGallery() {
       const ext = path.extname(file).toLowerCase();
       if (!VALID_EXTS.has(ext)) continue;
 
-      const baseName = path.parse(file).name;
-      const photoId = slugify(baseName);
+      const cleanBaseName = stripImageExtensions(file);
+      const photoId = slugify(cleanBaseName);
       const relativeUrl = `/assets/photos/${folderName}/${file}`;
 
       // Check if already registered
@@ -166,13 +188,15 @@ export function buildGallery() {
         continue;
       }
 
-      // Check stats for file date
-      let fileDate = '2026';
-      try {
-        const stats = fs.statSync(path.join(folderPath, file));
-        fileDate = formatDate(stats.mtime);
-      } catch (e) {
-        // keep default
+      // Check date: prefer parsed date from IMG_YYYYMMDD filename, fallback to file stats
+      let fileDate = dateFromFilename(file);
+      if (!fileDate) {
+        try {
+          const stats = fs.statSync(path.join(folderPath, file));
+          fileDate = formatDate(stats.mtime);
+        } catch (e) {
+          fileDate = '2026';
+        }
       }
 
       const meta = customMetadata[file] || {};
