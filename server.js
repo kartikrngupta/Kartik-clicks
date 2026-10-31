@@ -2,6 +2,13 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { buildGallery } from './scripts/build-gallery.js';
+
+try {
+  buildGallery();
+} catch (e) {
+  console.warn('Gallery discovery warning:', e.message);
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -4,7 +4,7 @@
  * Client-Side Router, Lightbox Engine, Theme Manager, Custom Cursor & Interactions
  */
 
-import { SITE_INFO, CATEGORIES, PHOTOS, STORIES, ABOUT_CONTENT, CATEGORY_POOLS } from './galleryData.js';
+import { SITE_INFO, CATEGORIES, PHOTOS, STORIES, ABOUT_CONTENT, CATEGORY_POOLS, FEATURED_CONFIG } from './galleryData.js';
 
 // --- Category-Aware Photo Queue Manager ---
 class CategoryQueueManager {
@@ -1068,7 +1068,7 @@ const dynamicSystem = {
   frameNumbers: ['05', '03', '02', '04', '06'],
   worldCategories: ['street', 'wildlife', 'nature', 'travel', 'bw', 'sky'],
   worldActiveIndex: 0,
-  featuredCuratedIds: [
+  featuredCuratedIds: (FEATURED_CONFIG && Array.isArray(FEATURED_CONFIG.featured) && FEATURED_CONFIG.featured.length > 0) ? FEATURED_CONFIG.featured : [
     'azure-perch',
     'ramparts-of-the-sun',
     'golden-hour-transit',

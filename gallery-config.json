@@ -1,0 +1,375 @@
+{
+  "description": "THE KARTIK CLICKS — Photo Metadata & Featured Configuration. When you upload new photos on GitHub into assets/photos/<category>/, you can optionally configure their title, location, caption, or mark them featured here.",
+  "featured": [
+    "azure-perch",
+    "golden-hour-transit",
+    "ramparts-of-the-sun",
+    "connaught-pillars-1",
+    "resting-plumage"
+  ],
+  "photos": {
+    "IMG_20260215_104412.jpg": {
+      "id": "azure-perch",
+      "title": "The Azure Perch",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Silvassa, India",
+      "date": "February 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "An Indian palm squirrel paused in sharp alertness along a sunlit bough, set against pure cerulean sky.",
+      "order": 1
+    },
+    "IMG_20260131_005619.jpg": {
+      "id": "ramparts-of-the-sun",
+      "title": "Ramparts of the Sun",
+      "category": "travel",
+      "categories": [
+        "travel",
+        "sky"
+      ],
+      "location": "Nahargarh Fort, Jaipur",
+      "date": "January 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "citadels-and-dusk",
+      "caption": "The curving stone battlements of Nahargarh Fort overlooking the sprawl of the Pink City as golden hour dips below the horizon.",
+      "order": 2
+    },
+    "IMG_20250917_182752.jpg": {
+      "id": "dusk-over-gopuram",
+      "title": "Dusk Over Gopuram",
+      "category": "travel",
+      "categories": [
+        "travel"
+      ],
+      "location": "New Delhi, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "citadels-and-dusk",
+      "caption": "Ornate South Indian temple gateway towering against an ethereal violet-rose evening sky.",
+      "order": 3
+    },
+    "IMG_20250917_183119.jpg": {
+      "id": "golden-hour-transit",
+      "title": "Golden Hour Transit",
+      "category": "street",
+      "categories": [
+        "street"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "September 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "urban-pulse",
+      "caption": "Everyday Delhi motion captured at sunset—autorickshaws, evening commuters, and tangled wires framed by glowing amber light.",
+      "order": 4
+    },
+    "IMG_20260405_150547.jpg": {
+      "id": "connaught-pillars-1",
+      "title": "Pillars of Connaught Place I",
+      "category": "bw",
+      "categories": [
+        "bw",
+        "street"
+      ],
+      "location": "Connaught Place, New Delhi",
+      "date": "April 2026",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "monochrome-metropolis",
+      "caption": "High-contrast monochrome perspective through the circular classical colonnades of CP as silhouettes glide between light and shade.",
+      "order": 5
+    },
+    "IMG_20260405_151314.jpg": {
+      "id": "connaught-pillars-2",
+      "title": "Pillars of Connaught Place II",
+      "category": "bw",
+      "categories": [
+        "bw",
+        "street"
+      ],
+      "location": "Connaught Place, New Delhi",
+      "date": "April 2026",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "monochrome-metropolis",
+      "caption": "Tree foliage framing the upper balustrades and towering columns along the historic colonial promenade in dramatic grayscale.",
+      "order": 6
+    },
+    "IMG_20260405_153716.jpg": {
+      "id": "agrasen-ki-baoli",
+      "title": "Agrasen ki Baoli: Echoes of Stone",
+      "category": "bw",
+      "categories": [
+        "bw",
+        "travel",
+        "street"
+      ],
+      "location": "Hailey Road, New Delhi",
+      "date": "April 2026",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "monochrome-metropolis",
+      "caption": "The dramatic descent of medieval masonry steps and subterranean arched chambers, frozen in deep architectural contrast.",
+      "order": 7
+    },
+    "IMG_20260503_013344.jpg": {
+      "id": "lunar-veil",
+      "title": "Lunar Veil",
+      "category": "sky",
+      "categories": [
+        "sky"
+      ],
+      "location": "Silvassa / Delhi NCR",
+      "date": "May 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "nocturne-and-skies",
+      "caption": "A bright full moon enveloped by swirling midnight cloud banks, producing a delicate glowing corona.",
+      "order": 8
+    },
+    "IMG_20251008_205235.jpg": {
+      "id": "waxing-gibbous",
+      "title": "Waxing Gibbous",
+      "category": "sky",
+      "categories": [
+        "sky"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "October 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "storyId": "nocturne-and-skies",
+      "caption": "Sharp telephoto detail of the lunar terminator line, revealing ancient craters and volcanic plains suspended in deep space.",
+      "order": 9
+    },
+    "IMG_20251008_221543.jpg": {
+      "id": "patience-in-the-dust",
+      "title": "Patience in the Dust",
+      "category": "wildlife",
+      "categories": [
+        "wildlife",
+        "street"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "October 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "Soulful amber eyes resting quietly in natural ground shadow, an intimate portrait of an urban street companion.",
+      "order": 10
+    },
+    "IMG_20260125_202939.jpg": {
+      "id": "inquisitive-babbler",
+      "title": "The Inquisitive Babbler",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Silvassa, India",
+      "date": "January 2026",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "A Jungle Babbler confronting the lens with pale piercing eyes, bathed in the soft glow of dusk.",
+      "order": 11
+    },
+    "IMG_20250823_163656.jpg": {
+      "id": "solitary-dove",
+      "title": "The Solitary Dove",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "August 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "Iridescent neck feathers and relaxed repose against weathered sandstone pavers.",
+      "order": 12
+    },
+    "IMG_20250823_163600.jpg": {
+      "id": "resting-plumage",
+      "title": "Resting Plumage",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "August 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": false,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "A close study of avian posture and feather textures under afternoon stone reflections.",
+      "order": 13
+    },
+    "IMG_20250823_163629.jpg": {
+      "id": "vigilance-in-stone",
+      "title": "Vigilance in Stone",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "August 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": false,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "Subtle head inclination and attentive posture captured during a quiet pause.",
+      "order": 14
+    },
+    "IMG_20250918_164808.jpg": {
+      "id": "foliage-perch",
+      "title": "Foliage Perch",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Delhi NCR, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "storyId": "quiet-encounters",
+      "caption": "A Scaly-breasted Munia seamlessly camouflaged amidst tangled garden stems and dappled leaves.",
+      "order": 15
+    },
+    "IMG_20250914_095233.jpg": {
+      "id": "hibiscus-morning",
+      "title": "Hibiscus Morning",
+      "category": "nature",
+      "categories": [
+        "nature"
+      ],
+      "location": "Silvassa, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": true,
+      "hero": true,
+      "storyId": "botanical-quiet",
+      "caption": "Deep crimson stamen and velvety red petals catching early morning sunrays in Silvassa.",
+      "order": 16
+    },
+    "IMG_20250914_093150.jpg": {
+      "id": "spider-lily-in-bloom",
+      "title": "Spider Lily in Bloom",
+      "category": "nature",
+      "categories": [
+        "nature"
+      ],
+      "location": "Silvassa Botanical, India",
+      "date": "September 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": true,
+      "hero": true,
+      "storyId": "botanical-quiet",
+      "caption": "Slender white tendrils of the Hymenocallis flower beaded with delicate post-rain droplets.",
+      "order": 17
+    },
+    "IMG_20250914_095819.jpg": {
+      "id": "dew-on-petals",
+      "title": "Dew On Petals",
+      "category": "nature",
+      "categories": [
+        "nature"
+      ],
+      "location": "Silvassa, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "storyId": "botanical-quiet",
+      "caption": "Bauhinia orchid tree blossoms glistening with morning condensation.",
+      "order": 18
+    },
+    "IMG_20250914_101421.jpg": {
+      "id": "wild-canopy-harvest",
+      "title": "Wild Canopy & Harvest",
+      "category": "nature",
+      "categories": [
+        "nature"
+      ],
+      "location": "Silvassa, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "storyId": "botanical-quiet",
+      "caption": "Clusters of textured custard apples growing wild beneath lush tropical tree leaves.",
+      "order": 19
+    },
+    "IMG_20250918_164153.jpg": {
+      "id": "open-corridor",
+      "title": "The Open Corridor",
+      "category": "travel",
+      "categories": [
+        "travel",
+        "sky"
+      ],
+      "location": "Delhi-NCR Expressway",
+      "date": "September 2025",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": false,
+      "hero": true,
+      "storyId": "crossroads-and-sky",
+      "caption": "Expressway perspective stretching toward high-rises beneath an expansive, sweeping cloudscape.",
+      "order": 20
+    },
+    "IMG_20250914_110511.jpg": {
+      "id": "avian-watcher",
+      "title": "Avian Watcher",
+      "category": "wildlife",
+      "categories": [
+        "wildlife"
+      ],
+      "location": "Silvassa, India",
+      "date": "September 2025",
+      "orientation": "portrait",
+      "aspectRatio": "3/4",
+      "featured": false,
+      "hero": true,
+      "caption": "A vigilant jungle babbler observing quietly from leafy cover in warm natural daylight.",
+      "order": 21
+    }
+  }
+}
