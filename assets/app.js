@@ -526,8 +526,8 @@ function renderHome() {
           <!-- FIXED FOREGROUND SUBJECT: REAL KARTIK CUTOUT (CANON CAMERA) -->
           <div class="hero-portrait-wrapper">
             <picture>
-              <source srcset="/assets/optimized/web/kartik-cutout.webp" type="image/webp">
-              <img class="hero-portrait" src="/assets/kartik-cutout.png" alt="Kartik Gupta holding Canon camera">
+              <source srcset="/assets/branding/kartik-cutout.webp" type="image/webp">
+              <img class="hero-portrait" src="/assets/branding/kartik-cutout.png" alt="Kartik Gupta holding Canon camera">
             </picture>
           </div>
         </div>
@@ -580,8 +580,8 @@ function renderHome() {
       <section class="about" id="about">
         <div class="about-photo">
           <picture>
-            <source srcset="/assets/optimized/web/kartik-camera.webp" type="image/webp">
-            <img src="/assets/kartik-camera.png" alt="Kartik Gupta with Canon camera">
+            <source srcset="/assets/branding/kartik-camera.webp" type="image/webp">
+            <img src="/assets/branding/kartik-camera.png" alt="Kartik Gupta with Canon camera">
           </picture>
           <div class="about-photo-badge">KARTIK GUPTA / PHOTOGRAPHER</div>
         </div>
@@ -710,7 +710,7 @@ function renderHome() {
             <a class="world-card" href="/gallery/${key}" data-world-cat="${key}">
               <div class="world-media-box">
                 <div class="world-layer current">
-                  <img loading="lazy" src="/assets/optimized/web/${photoFilename.replace('.jpg', '.webp')}" alt="${title} category cover">
+                  <img loading="lazy" src="/assets/photos/web/${photoFilename.replace('.jpg', '.webp')}" alt="${title} category cover">
                 </div>
                 <div class="world-layer next">
                   <img alt="">
@@ -928,8 +928,8 @@ function renderAbout() {
       <section class="about" style="border: none; padding-top: 20px;">
         <div class="about-photo">
           <picture>
-            <source srcset="/assets/optimized/web/kartik-camera.webp" type="image/webp">
-            <img src="/assets/kartik-camera.png" alt="Kartik Gupta with Canon camera">
+            <source srcset="/assets/branding/kartik-camera.webp" type="image/webp">
+            <img src="/assets/branding/kartik-camera.png" alt="Kartik Gupta with Canon camera">
           </picture>
           <div class="about-photo-badge">KARTIK GUPTA / PHOTOGRAPHER</div>
         </div>
