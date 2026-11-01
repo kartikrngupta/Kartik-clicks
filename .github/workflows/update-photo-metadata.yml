@@ -1,0 +1,88 @@
+name: Update Photo Metadata
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: 'Exact photo filename (e.g. IMG_20260928_174431.jpg.jpeg)'
+        required: true
+        type: string
+      title:
+        description: 'New photo title (e.g. Golden Sunset Over Delhi)'
+        required: true
+        type: string
+      category:
+        description: 'Category'
+        required: true
+        type: choice
+        default: 'keep-current'
+        options:
+          - 'keep-current'
+          - 'sky'
+          - 'wildlife'
+          - 'nature'
+          - 'street'
+          - 'travel'
+          - 'bw'
+      date:
+        description: 'Capture Date (e.g. September 2026) - optional'
+        required: false
+        type: string
+      order:
+        description: 'Display Order number (e.g. 22) - optional'
+        required: false
+        type: string
+
+# Top-level: zero permissions by default (least privilege principle)
+permissions: {}
+
+# Concurrency protection: guarantees sequential runs and prevents git race conditions
+concurrency:
+  group: update-photo-metadata
+  cancel-in-progress: false
+
+jobs:
+  update-photo:
+    name: Update Photo Metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Scoped write permission only for committing metadata
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update metadata in gallery-config.json
+        env:
+          PHOTO_FILENAME: ${{ inputs.filename }}
+          PHOTO_TITLE: ${{ inputs.title }}
+          PHOTO_CATEGORY: ${{ inputs.category }}
+          PHOTO_DATE: ${{ inputs.date }}
+          PHOTO_ORDER: ${{ inputs.order }}
+        run: |
+          node scripts/update-photo-metadata.js
+
+      - name: Commit and push changes
+        env:
+          COMMIT_TITLE: ${{ inputs.title }}
+          COMMIT_FILENAME: ${{ inputs.filename }}
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add gallery-config.json assets/galleryManifest.js assets/galleryManifest.json
+          if git diff --staged --quiet; then
+            echo "No metadata changes detected."
+          else
+            git commit -m "chore(photos): update metadata for ${COMMIT_FILENAME}" -m "Title: ${COMMIT_TITLE}"
+            git push origin main
+            echo "✅ Successfully updated photo metadata and pushed to main."
+          fi
