@@ -1,0 +1,118 @@
+name: Update Hero Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      bg_image:
+        description: 'Hero background image filename or relative path (e.g. IMG_20260131_005619.jpg, or "none", or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      heading:
+        description: 'Hero heading / display name (e.g. THE KARTIK CLICKS, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      tagline:
+        description: 'Hero tagline (e.g. Capturing moments, telling stories, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      introduction:
+        description: 'Hero introduction subnote (e.g. A personal archive of quiet encounters..., or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      primary_button_text:
+        description: 'Primary button text (e.g. EXPLORE MY WORLD, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      primary_button_url:
+        description: 'Primary button destination URL (e.g. /gallery, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      secondary_button_text:
+        description: 'Secondary button text (e.g. VIEW STORIES, or "none" to hide, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      secondary_button_url:
+        description: 'Secondary button destination URL (e.g. /stories, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      instagram_url:
+        description: 'Instagram profile URL (e.g. https://www.instagram.com/the_kartik_clicks/, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      pinterest_url:
+        description: 'Pinterest profile URL (e.g. https://pin.it/5T232Zggp, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+      email:
+        description: 'Contact Email (e.g. kartikrngupta180@gmail.com, or leave blank to keep current)'
+        required: false
+        type: string
+        default: 'keep-current'
+
+# Top-level: zero permissions by default (least privilege principle)
+permissions: {}
+
+# Concurrency protection: guarantees sequential runs and prevents git race conditions
+concurrency:
+  group: content-update-main
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  update-hero:
+    name: Update Hero Content
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Scoped write permission only for committing hero configuration
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update hero content in hero-config.json
+        env:
+          HERO_BG_IMAGE: ${{ inputs.bg_image }}
+          HERO_HEADING: ${{ inputs.heading }}
+          HERO_TAGLINE: ${{ inputs.tagline }}
+          HERO_INTRODUCTION: ${{ inputs.introduction }}
+          HERO_PRIMARY_BUTTON_TEXT: ${{ inputs.primary_button_text }}
+          HERO_PRIMARY_BUTTON_URL: ${{ inputs.primary_button_url }}
+          HERO_SECONDARY_BUTTON_TEXT: ${{ inputs.secondary_button_text }}
+          HERO_SECONDARY_BUTTON_URL: ${{ inputs.secondary_button_url }}
+          HERO_INSTAGRAM_URL: ${{ inputs.instagram_url }}
+          HERO_PINTEREST_URL: ${{ inputs.pinterest_url }}
+          HERO_EMAIL: ${{ inputs.email }}
+        run: |
+          node scripts/update-hero-content.js
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add hero-config.json
+          if git diff --staged --quiet; then
+            echo "No hero content changes detected."
+          else
+            git commit -m "chore(hero): update hero page content configuration"
+            git push origin main
+            echo "✅ Successfully updated hero content configuration and pushed to main."
+          fi

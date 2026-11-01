@@ -4,7 +4,7 @@
  * Client-Side Router, Lightbox Engine, Theme Manager, Custom Cursor & Interactions
  */
 
-import { SITE_INFO, CATEGORIES, PHOTOS, STORIES, ABOUT_CONTENT, CATEGORY_POOLS, FEATURED_CONFIG } from './galleryData.js';
+import { SITE_INFO, CATEGORIES, PHOTOS, STORIES, ABOUT_CONTENT, CATEGORY_POOLS, FEATURED_CONFIG, HERO_CONFIG } from './galleryData.js';
 
 // --- Category-Aware Photo Queue Manager ---
 class CategoryQueueManager {
@@ -367,6 +367,70 @@ window.copyEmail = function () {
 
 // --- Page Renderers ---
 
+function escapeHtml(str) {
+  if (!str) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function sanitizeUrl(url, fallback = "#") {
+  if (!url) return fallback;
+  const trimmed = String(url).trim();
+  if (/^(javascript|data|vbscript|file):/i.test(trimmed) || trimmed.startsWith('//')) {
+    return fallback;
+  }
+  return trimmed.replace(/["'<>]/g, "");
+}
+
+function syncNavSocialLinks() {
+  const instagramUrl = HERO_CONFIG?.socialLinks?.instagram || SITE_INFO?.instagram;
+  const pinterestUrl = HERO_CONFIG?.socialLinks?.pinterest || SITE_INFO?.pinterest;
+  const emailVal = HERO_CONFIG?.socialLinks?.email || SITE_INFO?.email;
+
+  if (instagramUrl) {
+    const safeInstagram = sanitizeUrl(instagramUrl, 'https://www.instagram.com/the_kartik_clicks/');
+    document.querySelectorAll('.nav-actions a.nav-social[aria-label="Instagram profile"], .mobile-socials a[href*="instagram"]')
+      .forEach(link => {
+        link.href = safeInstagram;
+      });
+  }
+
+  if (pinterestUrl) {
+    const safePinterest = sanitizeUrl(pinterestUrl, 'https://pin.it/5T232Zggp');
+    document.querySelectorAll('.nav-actions a.nav-social[aria-label="Pinterest profile"], .mobile-socials a[href*="pin.it"], .mobile-socials a[href*="pinterest"]')
+      .forEach(link => {
+        link.href = safePinterest;
+      });
+  }
+
+  if (emailVal) {
+    const safeEmail = sanitizeUrl(`mailto:${emailVal}`, 'mailto:kartikrngupta180@gmail.com');
+    document.querySelectorAll('.mobile-socials a[href^="mailto:"]')
+      .forEach(link => {
+        link.href = safeEmail;
+      });
+  }
+}
+
+function formatHeroHeading(heading) {
+  if (!heading) return `THE KARTIK<br><span class="clicks-red">CLICKS</span>`;
+  const safe = escapeHtml(String(heading).trim());
+  const words = safe.split(/\s+/);
+  if (words.length <= 1) return safe;
+  const lastWord = words.pop();
+  return `${words.join(" ")}<br><span class="clicks-red">${lastWord}</span>`;
+}
+
+function formatHeroTagline(tagline) {
+  if (!tagline) return `Capturing moments,<br>telling stories`;
+  const safe = escapeHtml(String(tagline).trim());
+  if (safe.includes(",")) return safe.replace(/,\s*/, ",<br>");
+  return safe.replace(/\r?\n/g, "<br>");
+}
 // 1. Home Page
 function renderHome() {
   const initialFrames = [
@@ -429,6 +493,9 @@ function renderHome() {
     <div class="home-view">
       <!-- Section 1: Cinematic Editorial Hero (Exact Reference Matched) -->
       <section class="hero cinematic-hero" id="hero">
+        ${HERO_CONFIG.backgroundImage ? `
+          <div class="hero-custom-bg" style="position: absolute; inset: 0; background-image: url('${sanitizeUrl(HERO_CONFIG.backgroundImage, '')}'); background-size: cover; background-position: center; opacity: 0.18; mix-blend-mode: luminosity; pointer-events: none; z-index: 0;" aria-hidden="true"></div>
+        ` : ''}
         <div class="hero-vignette" aria-hidden="true"></div>
         <div class="hero-foliage bottom-left" aria-hidden="true"></div>
         <div class="hero-foliage bottom-right" aria-hidden="true"></div>
@@ -446,11 +513,10 @@ function renderHome() {
             <span class="hkb-line2">PHOTOGRAPHY — STORIES — MOMENTS</span>
           </div>
 
-          <div class="hero-script-lead">Capturing moments,<br>telling stories</div>
+          <div class="hero-script-lead">${formatHeroTagline(HERO_CONFIG.tagline)}</div>
 
           <h1 class="hero-title">
-            THE KARTIK<br>
-            <span class="clicks-red">CLICKS</span>
+            ${formatHeroHeading(HERO_CONFIG.heading)}
           </h1>
 
           <!-- Red accent dot near CLICKS -->
@@ -472,14 +538,20 @@ function renderHome() {
           </div>
 
           <div class="hero-cta-row">
-            <a class="cta-pill" href="/gallery">
+            <a class="cta-pill" href="${sanitizeUrl(HERO_CONFIG.buttons?.primary?.url, '/gallery')}">
               <span class="cta-arrow-circle">→</span>
-              <span>EXPLORE MY WORLD</span>
+              <span>${escapeHtml(HERO_CONFIG.buttons?.primary?.text || 'EXPLORE MY WORLD')}</span>
             </a>
+            ${HERO_CONFIG.buttons?.secondary?.text && HERO_CONFIG.buttons?.secondary?.url ? `
+              <a class="cta-pill" href="${sanitizeUrl(HERO_CONFIG.buttons.secondary.url, '/stories')}">
+                <span class="cta-arrow-circle">→</span>
+                <span>${escapeHtml(HERO_CONFIG.buttons.secondary.text)}</span>
+              </a>
+            ` : ''}
           </div>
 
           <div class="hero-script-subnote">
-            A personal archive of quiet encounters, urban motion, and changing skies.
+            ${escapeHtml(HERO_CONFIG.introduction || 'A personal archive of quiet encounters, urban motion, and changing skies.')}
           </div>
         </div>
 
@@ -1498,6 +1570,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileMenu();
   initLightboxEvents();
   initScrollEffects();
+  syncNavSocialLinks();
 
   window.router = new Router();
   window.router.handleRoute();

@@ -13,18 +13,41 @@ import {
   MANIFEST_CONFIG,
   MANIFEST_CATEGORY_POOLS,
 } from './galleryManifest.js';
+import * as ManifestModule from './galleryManifest.js';
+
+export const HERO_CONFIG = ManifestModule.MANIFEST_HERO_CONFIG || {
+  backgroundImage: "",
+  heading: "THE KARTIK CLICKS",
+  tagline: "Capturing moments, telling stories",
+  introduction: "A personal archive of quiet encounters, urban motion, and changing skies.",
+  buttons: {
+    primary: {
+      text: "EXPLORE MY WORLD",
+      url: "/gallery"
+    },
+    secondary: {
+      text: "",
+      url: ""
+    }
+  },
+  socialLinks: {
+    instagram: "https://www.instagram.com/the_kartik_clicks/",
+    pinterest: "https://pin.it/5T232Zggp",
+    email: "kartikrngupta180@gmail.com"
+  }
+};
 
 export const SITE_INFO = {
-  brand: "THE KARTIK CLICKS",
+  brand: HERO_CONFIG.heading || "THE KARTIK CLICKS",
   brandShort: "TKC",
   websiteName: "Kartikclicks",
   photographer: "Kartik Gupta",
   location: "Delhi NCR · Silvassa, India",
-  tagline: "Capturing moments, telling stories.",
-  email: "kartikrngupta180@gmail.com",
-  instagram: "https://www.instagram.com/the_kartik_clicks/",
+  tagline: HERO_CONFIG.tagline || "Capturing moments, telling stories.",
+  email: HERO_CONFIG.socialLinks?.email || "kartikrngupta180@gmail.com",
+  instagram: HERO_CONFIG.socialLinks?.instagram || "https://www.instagram.com/the_kartik_clicks/",
   instagramHandle: "@the_kartik_clicks",
-  pinterest: "https://pin.it/5T232Zggp",
+  pinterest: HERO_CONFIG.socialLinks?.pinterest || "https://pin.it/5T232Zggp",
   pinterestHandle: "kartikrngupta180",
   bioShort: "Photographer observing light, stillness, urban rhythms, and the living world across Delhi NCR and Silvassa.",
 };

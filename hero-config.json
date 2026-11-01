@@ -1,0 +1,21 @@
+{
+  "backgroundImage": "",
+  "heading": "THE KARTIK CLICKS",
+  "tagline": "Capturing moments, telling stories",
+  "introduction": "A personal archive of quiet encounters, urban motion, and changing skies.",
+  "buttons": {
+    "primary": {
+      "text": "EXPLORE MY WORLD",
+      "url": "/gallery"
+    },
+    "secondary": {
+      "text": "",
+      "url": ""
+    }
+  },
+  "socialLinks": {
+    "instagram": "https://www.instagram.com/the_kartik_clicks/",
+    "pinterest": "https://pin.it/5T232Zggp",
+    "email": "kartikrngupta180@gmail.com"
+  }
+}

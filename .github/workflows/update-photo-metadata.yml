@@ -38,8 +38,9 @@ permissions: {}
 
 # Concurrency protection: guarantees sequential runs and prevents git race conditions
 concurrency:
-  group: update-photo-metadata
+  group: content-update-main
   cancel-in-progress: false
+  queue: max
 
 jobs:
   update-photo:
