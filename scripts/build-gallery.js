@@ -22,10 +22,10 @@ const MANIFEST_JS_PATH = path.join(rootDir, 'assets', 'galleryManifest.js');
 const MANIFEST_JSON_PATH = path.join(rootDir, 'assets', 'galleryManifest.json');
 
 // Supported image extensions
-const VALID_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+export const VALID_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
 // Category folder mapping to system category IDs
-const CATEGORY_MAP = {
+export const CATEGORY_MAP = {
   'wildlife': { id: 'wildlife', name: 'Wildlife' },
   'nature': { id: 'nature', name: 'Nature' },
   'street': { id: 'street', name: 'Street' },
@@ -36,12 +36,14 @@ const CATEGORY_MAP = {
   'sky': { id: 'sky', name: 'Sky & Night' },
 };
 
-function stripImageExtensions(filename) {
+export const CATEGORY_FOLDERS = ['wildlife', 'nature', 'street', 'travel', 'black-white', 'sky-night'];
+
+export function stripImageExtensions(filename) {
   // Normalize chained image extensions such as .jpg.jpeg, .jpeg.jpg, .png, etc.
   return filename.replace(/(\.(jpg|jpeg|png|webp))+$/i, '');
 }
 
-function slugify(text) {
+export function slugify(text) {
   return text
     .toString()
     .toLowerCase()
@@ -51,7 +53,7 @@ function slugify(text) {
     .replace(/--+/g, '-');
 }
 
-function titleFromFilename(filename) {
+export function titleFromFilename(filename) {
   const nameWithoutExt = stripImageExtensions(filename);
   // If filename looks like generic camera pattern, timestamp, or raw numbers, return clean editorial fallback
   if (/^(IMG|DSC|PXL|SAM|PIC|IMAGE|PHOTO)?_?\d+([_-]\d+)*$/i.test(nameWithoutExt)) {
@@ -65,7 +67,7 @@ function titleFromFilename(filename) {
   return cleaned || 'Untitled Photograph';
 }
 
-function dateFromFilename(filename) {
+export function dateFromFilename(filename) {
   const nameWithoutExt = stripImageExtensions(filename);
   const imgMatch = nameWithoutExt.match(/^IMG_(\d{4})(\d{2})(\d{2})_\d{6}$/i);
   if (imgMatch) {
@@ -82,12 +84,105 @@ function dateFromFilename(filename) {
   return null;
 }
 
-function formatDate(dateObj) {
+export function formatDate(dateObj) {
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
   return `${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
+}
+
+/**
+ * Resolves any photo identifier (canonical filename, single-extension variation,
+ * slugified ID, or full relative path inside assets/photos/) to its exact
+ * physical file on disk in category folders, originals, or web.
+ */
+export function resolvePhotoOnDisk(rawInput, photosDir = PHOTOS_DIR) {
+  if (!rawInput || typeof rawInput !== 'string') return null;
+
+  const normalized = rawInput.trim().replace(/\\/g, '/').replace(/^\/+/, '');
+  const searchDirs = [...CATEGORY_FOLDERS, 'originals', 'web'];
+
+  // 1. If input is a relative path starting with assets/photos/<dir>/ or <dir>/
+  for (const dir of searchDirs) {
+    const prefixes = [`assets/photos/${dir}/`, `photos/${dir}/`, `${dir}/`];
+    for (const prefix of prefixes) {
+      if (normalized.toLowerCase().startsWith(prefix.toLowerCase())) {
+        const candidateName = normalized.slice(prefix.length);
+        const fullCandidatePath = path.join(photosDir, dir, candidateName);
+        if (fs.existsSync(fullCandidatePath) && !fs.statSync(fullCandidatePath).isDirectory()) {
+          return {
+            filename: candidateName,
+            folder: dir,
+            fullPath: fullCandidatePath,
+            relativeUrl: `/assets/photos/${dir}/${candidateName}`,
+            category: CATEGORY_MAP[dir] ? CATEGORY_MAP[dir].id : null,
+          };
+        }
+      }
+    }
+  }
+
+  // 2. Extract base name and normalized identifiers
+  const cleanInput = path.basename(normalized);
+  const inputBase = stripImageExtensions(cleanInput).toLowerCase();
+  const inputId = slugify(inputBase);
+
+  // Prioritize directory if mentioned anywhere in the input path
+  let prioritizedDirs = searchDirs;
+  for (const dir of searchDirs) {
+    if (normalized.toLowerCase().includes(dir.toLowerCase() + '/')) {
+      prioritizedDirs = [dir, ...searchDirs.filter(d => d !== dir)];
+      break;
+    }
+  }
+
+  // 3. Direct filename match across search dirs
+  for (const dir of prioritizedDirs) {
+    const fullPath = path.join(photosDir, dir, cleanInput);
+    if (fs.existsSync(fullPath) && !fs.statSync(fullPath).isDirectory()) {
+      return {
+        filename: cleanInput,
+        folder: dir,
+        fullPath: fullPath,
+        relativeUrl: `/assets/photos/${dir}/${cleanInput}`,
+        category: CATEGORY_MAP[dir] ? CATEGORY_MAP[dir].id : null,
+      };
+    }
+  }
+
+  // 4. Directory scan across category folders, originals, and web
+  // Reliably matches:
+  // - single vs chained extensions (.jpg vs .jpg.jpeg)
+  // - case differences
+  // - slugified ID matching (e.g. img-20261026-192947)
+  for (const dir of prioritizedDirs) {
+    const dirPath = path.join(photosDir, dir);
+    if (!fs.existsSync(dirPath)) continue;
+
+    const files = fs.readdirSync(dirPath);
+    for (const f of files) {
+      if (f.startsWith('.')) continue;
+      const fBase = stripImageExtensions(f).toLowerCase();
+      const fId = slugify(fBase);
+
+      if (
+        f.toLowerCase() === cleanInput.toLowerCase() ||
+        fBase === inputBase ||
+        fId === inputId
+      ) {
+        return {
+          filename: f,
+          folder: dir,
+          fullPath: path.join(dirPath, f),
+          relativeUrl: `/assets/photos/${dir}/${f}`,
+          category: CATEGORY_MAP[dir] ? CATEGORY_MAP[dir].id : null,
+        };
+      }
+    }
+  }
+
+  return null;
 }
 
 export function buildGallery() {
@@ -133,7 +228,10 @@ export function buildGallery() {
     // Verify paths: prefer existing web/originals if present, or search in category folders
     let webPath = meta.web;
     if (!webPath) {
-      if (fs.existsSync(path.join(PHOTOS_DIR, 'web', `${baseName}.webp`))) {
+      const diskResolved = resolvePhotoOnDisk(filename, PHOTOS_DIR);
+      if (diskResolved) {
+        webPath = diskResolved.relativeUrl;
+      } else if (fs.existsSync(path.join(PHOTOS_DIR, 'web', `${baseName}.webp`))) {
         webPath = `/assets/photos/web/${baseName}.webp`;
       } else if (fs.existsSync(path.join(PHOTOS_DIR, 'originals', filename))) {
         webPath = `/assets/photos/originals/${filename}`;

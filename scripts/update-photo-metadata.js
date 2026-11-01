@@ -11,7 +11,16 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { buildGallery } from './build-gallery.js';
+import {
+  buildGallery,
+  resolvePhotoOnDisk,
+  stripImageExtensions,
+  slugify,
+  dateFromFilename,
+  CATEGORY_MAP,
+  CATEGORY_FOLDERS,
+  VALID_EXTS,
+} from './build-gallery.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,13 +29,13 @@ const rootDir = path.resolve(__dirname, '..');
 const CONFIG_PATH = path.join(rootDir, 'gallery-config.json');
 const PHOTOS_DIR = path.join(rootDir, 'assets', 'photos');
 
-// Supported image extensions
-const VALID_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp']);
+// Re-export resolvePhotoOnDisk as findPhotoOnDisk for backward compatibility
+export const findPhotoOnDisk = resolvePhotoOnDisk;
 
-// Supported categories & canonical IDs
+// Supported canonical categories
 const VALID_CATEGORIES = new Set(['sky', 'wildlife', 'nature', 'street', 'travel', 'bw']);
 
-const CATEGORY_MAP = {
+const CATEGORY_INPUT_MAP = {
   'sky': 'sky',
   'sky-night': 'sky',
   'wildlife': 'wildlife',
@@ -37,8 +46,6 @@ const CATEGORY_MAP = {
   'black-white': 'bw',
 };
 
-const CATEGORY_FOLDERS = ['wildlife', 'nature', 'street', 'travel', 'black-white', 'sky-night'];
-
 function getArg(flag) {
   const idx = process.argv.indexOf(`--${flag}`);
   if (idx !== -1 && process.argv[idx + 1] && !process.argv[idx + 1].startsWith('--')) {
@@ -47,61 +54,36 @@ function getArg(flag) {
   return null;
 }
 
-function stripImageExtensions(filename) {
-  return filename.replace(/(\.(jpg|jpeg|png|webp))+$/i, '');
-}
-
-function slugify(text) {
-  return text
-    .toString()
-    .toLowerCase()
-    .trim()
-    .replace(/[_ \t]+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-');
-}
-
 /**
- * Searches for an image file on disk in the photos directory tree
- */
-export function findPhotoOnDisk(filename, baseDir = PHOTOS_DIR) {
-  const cleanFilename = path.basename(filename.replace(/\\/g, '/'));
-  const searchDirs = [...CATEGORY_FOLDERS, 'originals', 'web'];
-
-  for (const dir of searchDirs) {
-    const fullPath = path.join(baseDir, dir, cleanFilename);
-    if (fs.existsSync(fullPath)) {
-      return {
-        folder: dir,
-        fullPath: fullPath,
-        relativeUrl: `/assets/photos/${dir}/${cleanFilename}`,
-        category: CATEGORY_MAP[dir] || null,
-      };
-    }
-  }
-  return null;
-}
-
-/**
- * Matches an existing photo entry in config.photos by filename, full path, or ID
+ * Matches an existing photo entry in config.photos by filename, base stem, full path, or ID
  */
 export function findExistingPhotoKey(configPhotos, rawInput) {
-  if (!configPhotos || !rawInput) return null;
+  if (!configPhotos || !rawInput || typeof rawInput !== 'string') return null;
+
   const trimmed = rawInput.trim();
   const baseName = path.basename(trimmed.replace(/\\/g, '/')).toLowerCase();
+  const strippedInput = stripImageExtensions(baseName).toLowerCase();
+  const inputId = slugify(strippedInput);
   const normalizedLower = trimmed.toLowerCase();
 
   for (const [key, photo] of Object.entries(configPhotos)) {
+    const keyLower = key.toLowerCase();
+    const keyBase = stripImageExtensions(path.basename(key.replace(/\\/g, '/'))).toLowerCase();
+    const keyId = photo.id ? photo.id.toLowerCase() : slugify(keyBase);
+
     // 1. Exact key match (case-insensitive)
-    if (key.toLowerCase() === normalizedLower) return key;
+    if (keyLower === normalizedLower) return key;
 
     // 2. Basename match with key
-    if (key.toLowerCase() === baseName) return key;
+    if (keyLower === baseName) return key;
 
-    // 3. ID match
-    if (photo.id && photo.id.toLowerCase() === normalizedLower) return key;
+    // 3. Stripped base match (handles .jpg vs .jpg.jpeg)
+    if (keyBase === strippedInput) return key;
 
-    // 4. URL path matches (web, thumb, original)
+    // 4. ID match
+    if (keyId === inputId || (photo.id && photo.id.toLowerCase() === normalizedLower)) return key;
+
+    // 5. URL path matches (web, thumb, original)
     if (photo.web) {
       const webLower = photo.web.toLowerCase();
       if (webLower === normalizedLower || webLower.replace(/^\//, '') === normalizedLower) return key;
@@ -111,6 +93,7 @@ export function findExistingPhotoKey(configPhotos, rawInput) {
       if (origLower === normalizedLower || origLower.replace(/^\//, '') === normalizedLower) return key;
     }
   }
+
   return null;
 }
 
@@ -136,11 +119,11 @@ export function updatePhotoMetadata({
     throw new Error('❌ Error: Path traversal is not permitted in filename.');
   }
 
-  // Extract base filename (supports both "IMG_123.jpg" and "assets/photos/sky-night/IMG_123.jpg")
+  // Extract base filename (supports "IMG_123.jpg", "assets/photos/sky-night/IMG_123.jpg", etc.)
   const cleanFilename = path.basename(rawFilename.replace(/\\/g, '/'));
   const ext = path.extname(cleanFilename).toLowerCase();
 
-  if (!VALID_EXTS.has(ext)) {
+  if (ext && !VALID_EXTS.has(ext)) {
     throw new Error(`❌ Error: Unsupported file extension "${ext}". Supported extensions: .jpg, .jpeg, .png, .webp`);
   }
 
@@ -166,7 +149,7 @@ export function updatePhotoMetadata({
   if (category && typeof category === 'string' && category.trim()) {
     const trimmedCat = category.trim().toLowerCase();
     if (trimmedCat !== 'keep-current' && trimmedCat !== 'keep-existing') {
-      normalizedCategory = CATEGORY_MAP[trimmedCat];
+      normalizedCategory = CATEGORY_INPUT_MAP[trimmedCat];
       if (!normalizedCategory || !VALID_CATEGORIES.has(normalizedCategory)) {
         throw new Error(
           `❌ Error: Invalid category "${category}". Supported categories: ${Array.from(VALID_CATEGORIES).join(', ')}`
@@ -189,11 +172,14 @@ export function updatePhotoMetadata({
     config.photos = {};
   }
 
-  // 7. Find Existing Photo or Verify New Photo on Disk
-  const existingKey = findExistingPhotoKey(config.photos, rawFilename);
-  const diskFile = findPhotoOnDisk(cleanFilename, photosDir);
+  // 7. Find Existing Photo in Config OR Locate File on Disk using gallery build resolver
+  const diskFile = resolvePhotoOnDisk(rawFilename, photosDir);
+  const existingKey =
+    findExistingPhotoKey(config.photos, rawFilename) ||
+    (diskFile ? findExistingPhotoKey(config.photos, diskFile.filename) : null);
 
   let updatedPhoto;
+  let targetKey;
 
   if (existingKey) {
     // === UPDATE EXISTING PHOTO ===
@@ -223,10 +209,13 @@ export function updatePhotoMetadata({
       existing.order = cleanOrder;
     }
 
-    // Normalize dictionary key to cleanFilename if different
-    if (existingKey !== cleanFilename) {
+    targetKey = existingKey;
+
+    // If disk file has canonical name (e.g. .jpg.jpeg vs .jpg), normalize key
+    if (diskFile && diskFile.filename !== existingKey) {
       delete config.photos[existingKey];
-      config.photos[cleanFilename] = existing;
+      config.photos[diskFile.filename] = existing;
+      targetKey = diskFile.filename;
     }
 
     updatedPhoto = existing;
@@ -241,13 +230,14 @@ export function updatePhotoMetadata({
       );
     }
 
+    const canonicalFilename = diskFile.filename;
     const assignedCategory = normalizedCategory || diskFile.category || 'street';
-    const cleanBase = stripImageExtensions(cleanFilename);
+    const cleanBase = stripImageExtensions(canonicalFilename);
     const photoId = slugify(cleanBase);
 
     // Check for duplicate ID against other photos
     const duplicateIdEntry = Object.entries(config.photos).find(
-      ([k, p]) => p.id === photoId && k !== cleanFilename
+      ([k, p]) => p.id === photoId && k !== canonicalFilename
     );
     if (duplicateIdEntry) {
       throw new Error(
@@ -267,7 +257,7 @@ export function updatePhotoMetadata({
       category: assignedCategory,
       categories: [assignedCategory],
       location: 'Delhi NCR · Silvassa, India',
-      date: cleanDate || '2026',
+      date: cleanDate || dateFromFilename(canonicalFilename) || '2026',
       orientation: 'landscape',
       aspectRatio: '4/3',
       featured: false,
@@ -276,13 +266,15 @@ export function updatePhotoMetadata({
       order: cleanOrder !== null ? cleanOrder : nextOrder,
     };
 
-    config.photos[cleanFilename] = updatedPhoto;
+    config.photos[canonicalFilename] = updatedPhoto;
+    targetKey = canonicalFilename;
   }
 
   // 8. Write back to config file
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
   console.log(`✅ Successfully saved metadata in ${path.basename(configPath)}:`);
-  console.log(`   - Filename: ${cleanFilename}`);
+  console.log(`   - Key:      ${targetKey}`);
+  console.log(`   - ID:       ${updatedPhoto.id}`);
   console.log(`   - Title:    "${updatedPhoto.title}"`);
   console.log(`   - Category: ${updatedPhoto.category}`);
   console.log(`   - Date:     ${updatedPhoto.date}`);
