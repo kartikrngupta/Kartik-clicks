@@ -386,6 +386,22 @@
       "hero": true,
       "caption": "Curated in the Sky & Night photography archive.",
       "order": 22
+    },
+    "IMG_20261026_192947.jpg.jpeg": {
+      "id": "img-20261026-192947",
+      "title": "Moonlit Serenity",
+      "category": "sky",
+      "categories": [
+        "sky"
+      ],
+      "location": "Delhi NCR · Silvassa, India",
+      "date": "October 2026",
+      "orientation": "landscape",
+      "aspectRatio": "4/3",
+      "featured": false,
+      "hero": true,
+      "caption": "Curated in the photography archive.",
+      "order": 23
     }
   }
 }
